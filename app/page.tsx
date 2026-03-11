@@ -1,30 +1,17 @@
-'use client'
+import { createClient } from '@/utils/supabase/server'
+import { cookies } from 'next/headers'
 
-import { useEffect, useState } from 'react'
-import { supabase } from '../lib/supabase'
+export default async function Page() {
+  const cookieStore = await cookies()
+  const supabase = createClient(cookieStore)
 
-export default function HomePage() {
-  const [message, setMessage] = useState('Loading...')
-
-  useEffect(() => {
-    async function test() {
-      const { data, error } = await supabase.from('companies').select('*').limit(5)
-
-      if (error) {
-        setMessage(`Supabase error: ${error.message}`)
-        return
-      }
-
-      setMessage(`Connected. Found ${data?.length ?? 0} companies.`)
-    }
-
-    test()
-  }, [])
+  const { data: todos } = await supabase.from('todos').select()
 
   return (
-    <main style={{ padding: 40 }}>
-      <h1>Aterra CRM</h1>
-      <p>{message}</p>
-    </main>
+    <ul>
+      {todos?.map((todo) => (
+        <li>{todo}</li>
+      ))}
+    </ul>
   )
 }
